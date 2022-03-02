@@ -9,8 +9,7 @@ contract CollaborationFactory {
     Counters.Counter private CollabIds;
 
     struct Researcher {
-        string name;
-        string institution;
+        string cid;
         uint256[] sharing_ids;
         uint256[] seeking_ids;
         bool exists;
@@ -63,15 +62,17 @@ contract CollaborationFactory {
 
     /// @notice A researcher must be a confirmed participant on the protocol in
     ///         to share or seek data
-    /// @param name first and last name of researcher
-    /// @param institution associated institution of the researcher
-    function _addRes(string memory name, string memory institution) public {
+    /// @param cid IPFS contentID pointing to a JSON handling researcher metadata
+    function _addRes(string memory cid) public {
         require(participants[msg.sender].exists == false, "Already a researcher associated with this address");
 
         uint256[] memory arr1;
         uint256[] memory arr2;
-        participants[msg.sender] = Researcher(name, institution, arr1, arr2, true);
-        emit ParticipantAdded(name, institution);
+        participants[msg.sender] = Researcher(cid, arr1, arr2, true);
+        emit ParticipantAdded(cid);
     }
+
+    
+
 
 }

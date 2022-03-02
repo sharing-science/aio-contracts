@@ -19,7 +19,7 @@ ACC_1 = "Metamask Address 1"
 ACC_2 = "Metamask Address 2"
 ```
 
-Get Alchemy Url at alchemy.com
+Get Alchemy Url at https://www.alchemy.com/
     - Sign up
     - 'Create app' - make sure this is on Rinkeby Network, use all other defaults
     - View key
