@@ -3,17 +3,18 @@ pragma solidity ^0.8.0;
 
 
 contract CollaborationEvent {
+    address payable public factory;
     address public data_sharer; 
     address public data_seeker; 
     contractState public _contractState;
     requestType public _requestType ;
 
     enum contractState { 
-        Created, ReceivedRequest, AwaitingDataShare, AwaitingDataReceive, AwaitingReuseReport, AwaitingReviews
+        AwaitingDataRequest, AwaitingDataRequestApproval, AwaitingDataShareConfirm, AwaitingDataReceiveConfirm, AwaitingReuseReport, AwaitingReviews, ContractDestroyed
     }   
 
     enum requestType {
-        none, DataMerge, Reproduce, Reuse
+        none, DataMerge, Reproduce, Reuse, Cite
     }
 
     uint startTime;
@@ -43,31 +44,33 @@ contract CollaborationEvent {
 
     constructor(address _data_sharer, address _data_seeker) {
         startTime = block.timestamp;
+        factory = payable(msg.sender);
         data_sharer = _data_sharer;
 
         data_seeker = _data_seeker;
 
-        _contractState = contractState.Created;
+        _contractState = contractState.AwaitingDataRequest;
         _requestType = requestType.none;
     }
 
     function _submitRequest(requestType _type) public onlyDataSeeker {
-        require(_contractState == contractState.Created, "Request already submitted");
-        _contractState = contractState.ReceivedRequest;
+        require(_contractState == contractState.AwaitingDataRequest, "Request already submitted");
+        _contractState = contractState.AwaitingDataRequestApproval;
         _requestType = _type;
         
         emit RequestSubmitted(block.timestamp, _type);
     }
 
     function _approveRequest() public onlyDataSharer {
-        require(_contractState == contractState.ReceivedRequest, "Request not submitted or request already approved");
-        _contractState = contractState.AwaitingDataShare;
+        require(_contractState == contractState.AwaitingDataRequestApproval, "Request not submitted or request already approved");
+        _contractState = contractState.AwaitingDataShareConfirm;
         
         emit RequestApproved(block.timestamp);
     }
 
     function _denyRequest() public onlyDataSharer {
-        require(_contractState == contractState.ReceivedRequest, "Request not submitted or request already approved");
+        require(_contractState == contractState.AwaitingDataShareConfirm, "Request not submitted or request already approved");
+        _contractState = contractState.ContractDestroyed;
         emit RequestDenied(block.timestamp);
         destruct();
     }
@@ -77,16 +80,18 @@ contract CollaborationEvent {
 
 
     function _shareData() public onlyDataSharer {
-        require(_contractState == contractState.AwaitingDataShare, "Request not approved or Data already shared");
-        _contractState = contractState.AwaitingDataReceive;
+        require(_contractState == contractState.AwaitingDataShareConfirm, "Request not approved or Data already shared");
+        _contractState = contractState.AwaitingDataReceiveConfirm;
         emit DataShared(block.timestamp);
     }
 
     function _receiveData() public onlyDataSeeker {
-        require(_contractState == contractState.AwaitingDataReceive, "Data not shared or Data already rececived");
+        require(_contractState == contractState.AwaitingDataReceiveConfirm, "Data not shared or Data already rececived");
         _contractState = contractState.AwaitingReuseReport;
         emit DataReceived(block.timestamp);
     }
+
+    //didnt receive data
 
 
 
@@ -102,23 +107,20 @@ contract CollaborationEvent {
         }
     }
 
+    function _submitReviewOfDataSharer(int Communication, int EaseOfUse, int Reproducibility, int Timeliness, int Verifiability) public onlyDataSeeker {
+        
+    }
 
 
- 
+    function _submitReviewOfDataSeeker(int Communication, int EaseOfUse, int Reproducibility, int Timeliness, int Verifiability) public onlyDataSharer {
 
-
-
-
-
-
-
-
-
+    }
 
 
 
     function destruct() private {
         emit CollaborationDestroyed(block.timestamp);
+        selfdestruct(factory);
     }
     
 }
