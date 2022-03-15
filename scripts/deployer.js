@@ -1,7 +1,7 @@
 async function main() {
     // We get the contract to deploy
-    const Greeter = await ethers.getContractFactory("CollaborationFactory");
-    const greeter = await Greeter.deploy();
+    const Collab = await ethers.getContractFactory("CollaborationFactory");
+    const collab = await Collab.deploy();
   
 }
   
