@@ -48,6 +48,8 @@ contract CollaborationFactory {
 
     function _lookupCollab(uint256 id) public view returns(address) { return collaborations[id]; }
 
+    //A lookup function to get all active collaborations by filtering by CollaborationState
+
     /// @notice Initialize a collaboration between two researchers, generally
     ///         would be initialized by the data seeker
     /// @param res_1 Address of confirmed participant in the protocol who is sharing data
@@ -86,19 +88,22 @@ contract CollaborationFactory {
 
     /// @notice Updates a researcher's peer review score and adds the review's content ID to
     ///         the appropriate arrays for later lookup
+    /// @dev not finished, see comments
     /// @param  collaborationContract the collaboration the review pertains to
     /// @param  about The researcher's address the review is about
     /// @param  cid IPFS contentID pointing to a JSON handling the review metadata, pinned by application
     /// @param  reviewScore calculated based on the different review fields outlined in AIO, calculated in application
     function _submitReview(address collaborationContract, address about, string memory cid, uint reviewScore) public {
         // check that collab contract is in correct state...
-        
+
         uint currReviewCount = participants[about].reviewAbout_cids.length;
         uint newReviewScore = ((participants[about].peer_review_score * currReviewCount) + reviewScore) / (currReviewCount + 1);
         participants[about].peer_review_score = newReviewScore;
 
         participants[msg.sender].reviewFrom_cids.push(cid);
         participants[about].reviewAbout_cids.push(cid);
+
+        //if both researchers on a contract have submitted reviews, destroy the contract
     }
 
 
