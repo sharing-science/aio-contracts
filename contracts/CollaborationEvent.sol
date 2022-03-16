@@ -18,6 +18,7 @@ contract CollaborationEvent {
     }
 
     uint startTime;
+    uint reviewCount;
 
     event CollaborationDestroyed(uint time);
 
@@ -51,6 +52,14 @@ contract CollaborationEvent {
         return uint8(_collaborationState);
     }
 
+    /// @notice increment Review count, if count == 2, destroy contract
+    function _incrementReviewCount() public {
+        reviewCount += 1;
+        if (reviewCount == 2) {
+            destruct();
+        }
+    }
+
 
     /// @notice constructor called within CollaborationFactory only
     ///
@@ -58,6 +67,8 @@ contract CollaborationEvent {
     /// @param _data_seeker address of data seeker
     constructor(address _data_sharer, address _data_seeker) {
         startTime = block.timestamp;
+        reviewCount = 0;
+
         factory = payable(msg.sender);
         data_sharer = _data_sharer;
 

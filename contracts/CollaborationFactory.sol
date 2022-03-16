@@ -48,7 +48,18 @@ contract CollaborationFactory {
 
     function _lookupCollab(uint256 id) public view returns(address) { return collaborations[id]; }
 
-    //A lookup function to get all active collaborations by filtering by CollaborationState
+    /// @notice A lookup function to get all active collaborations by filtering by CollaborationState
+    function _allActiveCollabs() public view returns(address[]) {
+        address[] memory ret = new address[](CollabIds);
+        for (uint i = 0; i < CollabIds; i++) {
+            CollaborationEvent temp = CollaborationEvent(collaborations[i]);
+            if (temp._getCollaborationState() != 6) {
+                ret[i] = collaborations[i];
+            }
+        }
+        return ret;
+    }
+
 
     /// @notice Initialize a collaboration between two researchers, generally
     ///         would be initialized by the data seeker
@@ -88,13 +99,14 @@ contract CollaborationFactory {
 
     /// @notice Updates a researcher's peer review score and adds the review's content ID to
     ///         the appropriate arrays for later lookup
-    /// @dev not finished, see comments
     /// @param  collaborationContract the collaboration the review pertains to
     /// @param  about The researcher's address the review is about
     /// @param  cid IPFS contentID pointing to a JSON handling the review metadata, pinned by application
     /// @param  reviewScore calculated based on the different review fields outlined in AIO, calculated in application
     function _submitReview(address collaborationContract, address about, string memory cid, uint reviewScore) public {
-        // check that collab contract is in correct state...
+        CollaborationEvent collab = CollaborationEvent(collaborationContract);
+        uint _currState = collab._getCollaborationState();
+        require(_currState == 5, "Not ready for reviews or reviews already submitted");
 
         uint currReviewCount = participants[about].reviewAbout_cids.length;
         uint newReviewScore = ((participants[about].peer_review_score * currReviewCount) + reviewScore) / (currReviewCount + 1);
@@ -103,9 +115,7 @@ contract CollaborationFactory {
         participants[msg.sender].reviewFrom_cids.push(cid);
         participants[about].reviewAbout_cids.push(cid);
 
-        //if both researchers on a contract have submitted reviews, destroy the contract
+        collab._incrementReviewCount();
     }
-
-
 
 }
