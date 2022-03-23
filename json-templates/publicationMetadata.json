@@ -1,7 +1,7 @@
 {
     "Title" : "Biomedical Data Could be More Open",
     "Authors" : ["Noe Horowitz", "Frank Scabopolis", "Tom Joe Guy"], 
-    "Journal" : "Journal of Biomedicists",
+    "Location of publication" : "Journal of Biomedicists",
     "DOI" : "<-DOI of publication->",
     "cites" : "<-CID of Research Artifact->"
 }

@@ -167,7 +167,12 @@ contract CollaborationFactory {
     function _retrieveSCIENCEindex(address researcher) public {
         string memory cid = participants[researcher].cid;
         /// @dev throw cid to external chainlink adapter which should return new science-index
-        participants[researcher].SCIENCE_index += 1;
+        participants[researcher].SCIENCE_index = newSCIENCE_index
+    }
+
+
+    function _reportPolicyViolation(address researcherAbout) public {
+        I don't know what to do 
     }
 */
 

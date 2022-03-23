@@ -22,17 +22,17 @@ async function main() {
     // Get contract address
     console.log("Contract deployed to:", contract.address);
 
-    let txn = await contract._addRes("Kacy", "RPI");
+    let txn = await contract._addResearcher("Kacy");
     await txn.wait();
-    let name = await contract._lookupResName(addr1.address);
+    let name = await contract._lookupResCid(addr1.address);
     console.log(name);
     
-    txn = await contract.connect(addr2)._addRes("Oshani", "MIT");
+    txn = await contract.connect(addr2)._addResearcher("Oshani");
     await txn.wait();
-    name = await contract._lookupResName(addr2.address);
+    name = await contract._lookupResCid(addr2.address);
     console.log(name);
 
-    const collab = await contract._initCollab(addr1.address, addr2.address);
+    const collab = await contract._initCollaboration(addr1.address, addr2.address);
     const receipt = await collab.wait();
     const event = receipt.events.find(event => event.event === 'CollaborationInitialized');
     const id = event.args.CollabId;

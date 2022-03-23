@@ -7,7 +7,10 @@ contract CollaborationEvent is Ownable{
     address public data_sharer; 
     address public data_seeker; 
     CollaborationState public _collaborationState;
+
     IntendedUse public _intendedUse ;
+    string public _requestCID;
+
 
     enum CollaborationState { 
         AwaitingDataRequest, AwaitingDataRequestApproval, AwaitingDataShareConfirm, AwaitingDataReceiveConfirm, AwaitingReuseReport, AwaitingReviews, ContractDestroyed
@@ -56,6 +59,12 @@ contract CollaborationEvent is Ownable{
         return uint8(_collaborationState);
     }
 
+    /// @notice getter RequestCID
+    function _getRequestCID() public view returns(string memory) {
+        return _requestCID;
+    }
+
+
     /// @notice increment Review count, if count == 2, destroy contract
     function _incrementReviewCount() public onlyOwner {
         reviewCount += 1;
@@ -89,10 +98,11 @@ contract CollaborationEvent is Ownable{
     /// @notice submit request type from Data Seeker
     /// 
     /// @param _type enum 0-4 represent request type enumerator
-    function _submitRequest(IntendedUse _type) public onlyDataSeeker {
+    function _submitRequest(IntendedUse _type, string memory cid) public onlyDataSeeker {
         require(_collaborationState == CollaborationState.AwaitingDataRequest, "Request already submitted");
         _collaborationState = CollaborationState.AwaitingDataRequestApproval;
         _intendedUse = _type;
+        _requestCID = cid;
         
         emit RequestSubmitted(block.timestamp, _type);
     }
@@ -117,7 +127,6 @@ contract CollaborationEvent is Ownable{
 
     /// Data Sharing Event from aio v1
     /// two functions below
-
 
 
     /// @notice after sharing the data data sharer confirms the data has been shared
@@ -147,9 +156,9 @@ contract CollaborationEvent is Ownable{
     /// two functions below
 
     /// @notice Report the reuse
-    /// @dev include DOI reporting... where to put
+    /// @dev called via _reportReuse driver function in owner factory, as such onlyOwner
     /// @param wasReused boolean true if reused false otherwise
-    function _reportReuse(bool wasReused) public onlyDataSeeker {
+    function _reportReuse(bool wasReused) public onlyOwner {
         require(_collaborationState == CollaborationState.AwaitingReuseReport, "Data not received or reuse already reported");
         if (wasReused == false) {
             emit DataNotReused(block.timestamp);
