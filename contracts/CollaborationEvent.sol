@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract CollaborationEvent {
-    address payable public factory;
+contract CollaborationEvent is Ownable{
     address public data_sharer; 
     address public data_seeker; 
     CollaborationState public _collaborationState;
@@ -34,6 +34,10 @@ contract CollaborationEvent {
     event DataNotReused(uint time);
     event ReviewSubmitted(uint time, address isAbout);
 
+    ///***** Getters *********************************///
+    function _DataSharer() public view returns (address) { return data_sharer;}
+    function _DataSeeker() public view returns (address) { return data_seeker;}
+
 
     /// @notice modifier onlyDataSharer
     modifier onlyDataSharer(){
@@ -53,7 +57,7 @@ contract CollaborationEvent {
     }
 
     /// @notice increment Review count, if count == 2, destroy contract
-    function _incrementReviewCount() public {
+    function _incrementReviewCount() public onlyOwner {
         reviewCount += 1;
         if (reviewCount == 2) {
             destruct();
@@ -69,7 +73,6 @@ contract CollaborationEvent {
         startTime = block.timestamp;
         reviewCount = 0;
 
-        factory = payable(msg.sender);
         data_sharer = _data_sharer;
 
         data_seeker = _data_seeker;
@@ -164,7 +167,7 @@ contract CollaborationEvent {
     /// @dev must catch CollaborationDestroyed event and not allow any other interfacing from application
     function destruct() private {
         emit CollaborationDestroyed(block.timestamp);
-        selfdestruct(factory);
+        selfdestruct(payable(owner()));
     }
     
 }
