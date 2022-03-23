@@ -1,0 +1,27 @@
+{
+    "associated with" : "<-uint256 ID of collaboration->",
+    "has provider" : "Noe Horowitz",
+    "is about" : "Oshani Seneviratne",
+    "Review Field" : {
+        "Communication" : [
+            "4",
+            "<-Brief natural Language description->"
+        ],
+        "Ease of Use" : [
+            "3",
+            "<-Brief natural Language description->"
+        ],
+        "Reproducibility of Data" : [
+            "2",
+            "<-Brief natural Language description->"
+        ],
+        "Timeliness" : [
+            "5",
+            "<-Brief natural Language description->"
+        ],
+        "Verifiability of Data" : [
+            "1",
+            "<-Brief natural Language description->"
+        ]
+    }
+}
